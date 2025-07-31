@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ListGroup, Button, Collapse } from "react-bootstrap";
+import { useState } from "react";
+import { ListGroup, Button } from "react-bootstrap";
 
 function Sidebar({ onSelectCategory, selectedCategory, onLogout }) {
   const [open, setOpen] = useState(false);

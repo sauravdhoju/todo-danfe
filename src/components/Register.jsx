@@ -1,7 +1,6 @@
-import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Container, Form, Button, Row, Col, Alert } from "react-bootstrap";
+import { Container, Form, Button, Row, Col } from "react-bootstrap";
 
 const Register = () => {
   const formik = useFormik({
