@@ -8,7 +8,7 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
 
   // Convert todo.duedate to Date object for comparison
   const dueDate = todo.duedate ? new Date(todo.duedate) : null;
-  const today = new Date();
+  const now = new Date();
 
   // Helper function to check if two dates are the same calendar day
   const isSameDay = (d1, d2) =>
@@ -16,14 +16,29 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear();
 
-  const isOverdue = dueDate && !todo.completed && dueDate < today && !isSameDay(dueDate, today);
-  const isToday = dueDate && isSameDay(dueDate, today);
+  // Overdue if dueDate is before now and not completed
+  const isOverdue = dueDate && !todo.completed && dueDate < now;
+  // Today if dueDate is today (regardless of time)
+  const isToday = dueDate && isSameDay(dueDate, now);
 
   const handleSave = () => {
     if (editText.trim() !== "") {
       onUpdate(todo.id, editText.trim(), editDate);
       setIsEdit(false);
     }
+  };
+
+  // Format due date and time for display
+  const formatDueDateTime = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -48,7 +63,7 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
               autoFocus
             />
             <FormControl
-              type="datetime-local" // <-- changed from "date"
+              type="datetime-local"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
               size="sm"
@@ -71,7 +86,7 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
             <span>{todo.text}</span>
             {todo.duedate && (
               <small className="text-muted" style={{ fontSize: "0.8em" }}>
-                Due: {new Date(todo.duedate).toLocaleString()}
+                Due: {formatDueDateTime(todo.duedate)}
               </small>
             )}
           </div>
@@ -99,6 +114,5 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
     </ListGroup.Item>
   );
 }
-
 
 export default TodoItem;

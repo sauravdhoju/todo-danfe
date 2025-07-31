@@ -34,14 +34,14 @@ function Sidebar({ onSelectCategory, selectedCategory, onLogout }) {
       </ListGroup>
 
       <hr className="my-4" />
-      <Button
+      {/* <Button
         variant="outline-danger"
         onClick={onLogout}
         className="w-100 d-flex align-items-center justify-content-center gap-2"
       >
         <i className="bi bi-box-arrow-right"></i>
         Logout
-      </Button>
+      </Button> */}
     </div>
   );
 }

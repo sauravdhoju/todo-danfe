@@ -37,11 +37,13 @@ function App() {
       .catch(() => showToast("Failed to fetch todos", "danger"));
   }, []);
 
+  console.log(todos);
   // Helper to map API todo to frontend format
   const mapApiTodo = (todo) => ({
     id: todo.id,
     text: todo.title,
-    duedate: todo.dueDate?.split("T")[0] || "",
+    // duedate: todo.dueDate?.split("T")[0] || "",
+    duedate: todo.dueDate,
     completed: todo.isCompleted,
   });
 
@@ -141,12 +143,24 @@ function App() {
   };
 
   const filteredTools = todos.filter((todo) => {
-    const today = new Date().toISOString().split("T")[0];
-    const isOverdue = todo.duedate < today && !todo.completed;
+    const now = new Date();
+    const todoDate = todo.duedate ? new Date(todo.duedate) : null;
+
+    // Overdue: due date/time is before now and not completed
+    const isOverdue = todoDate && !todo.completed && todoDate < now;
+
+    // Today: due date is today (calendar day), not completed, and not overdue
+    const isToday =
+      todoDate &&
+      !todo.completed &&
+      todoDate.getDate() === now.getDate() &&
+      todoDate.getMonth() === now.getMonth() &&
+      todoDate.getFullYear() === now.getFullYear() &&
+      todoDate >= now;
 
     if (filter === "completed") return todo.completed;
     if (filter === "incompleted") return !todo.completed;
-    if (filter === "today") return todo.duedate === today;
+    if (filter === "today") return isToday;
     if (filter === "overdue") return isOverdue;
 
     return todo.text.toLowerCase().includes(searchText.toLowerCase());
