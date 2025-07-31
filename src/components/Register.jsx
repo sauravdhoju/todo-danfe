@@ -1,8 +1,9 @@
+import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 
-const Register = () => {
+const Register = ({ onRegister }) => {
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -20,11 +21,11 @@ const Register = () => {
         .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
     }),
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       const users = JSON.parse(localStorage.getItem("users") || "{}");
 
       if (users[values.email]) {
-        alert("User already exists!");
+        alert("User already exists with this email!");
         return;
       }
 
@@ -36,7 +37,8 @@ const Register = () => {
       localStorage.setItem("users", JSON.stringify(users));
       alert("Registration successful!");
 
-      formik.resetForm();
+      if (onRegister) onRegister(values.email); // callback if needed
+      resetForm();
     },
   });
 
@@ -52,7 +54,7 @@ const Register = () => {
                 type="text"
                 placeholder="Enter your full name"
                 {...formik.getFieldProps("fullName")}
-                isInvalid={formik.touched.fullName && formik.errors.fullName}
+                isInvalid={formik.touched.fullName && !!formik.errors.fullName}
               />
               <Form.Control.Feedback type="invalid">
                 {formik.errors.fullName}
@@ -65,7 +67,7 @@ const Register = () => {
                 type="email"
                 placeholder="Enter your email"
                 {...formik.getFieldProps("email")}
-                isInvalid={formik.touched.email && formik.errors.email}
+                isInvalid={formik.touched.email && !!formik.errors.email}
               />
               <Form.Control.Feedback type="invalid">
                 {formik.errors.email}
@@ -78,7 +80,7 @@ const Register = () => {
                 type="password"
                 placeholder="Enter a password"
                 {...formik.getFieldProps("password")}
-                isInvalid={formik.touched.password && formik.errors.password}
+                isInvalid={formik.touched.password && !!formik.errors.password}
               />
               <Form.Control.Feedback type="invalid">
                 {formik.errors.password}
