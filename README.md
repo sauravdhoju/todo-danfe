@@ -73,12 +73,6 @@ cd todo-frontend
 npm install
 ```
 
-_or with Yarn:_
-
-```bash
-yarn
-```
-
 ### ▶️ Run the React app
 
 ```bash
@@ -86,38 +80,3 @@ npm run dev
 ```
 
 Visit: [http://localhost:5173](http://localhost:5173)
-
----
-
-## 📁 Suggested Folder Structure
-
-```
-/TaskCrudApp       --> ASP.NET Core backend
-/todo-frontend     --> React frontend (Vite)
-```
-
----
-
-## 🧾 .gitignore Suggestions
-
-```
-# Backend
-bin/
-obj/
-*.db
-
-# Frontend
-node_modules/
-dist/
-.vite/
-.env
-```
-
----
-
-## ✅ Features
-
-- ✅ Create, Read, Update, Delete Todos
-- ✅ SQLite for persistent storage
-- ✅ Swagger UI for testing APIs
-- ✅ React frontend with Vite
