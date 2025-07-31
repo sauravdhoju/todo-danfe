@@ -48,12 +48,11 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
               autoFocus
             />
             <FormControl
-              type="date"
+              type="datetime-local" // <-- changed from "date"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
               size="sm"
-              style={{ maxWidth: "160px" }}
-              autoFocus
+              style={{ maxWidth: "180px" }}
             />
           </>
         ) : (
@@ -72,7 +71,7 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
             <span>{todo.text}</span>
             {todo.duedate && (
               <small className="text-muted" style={{ fontSize: "0.8em" }}>
-                Due: {todo.duedate}
+                Due: {new Date(todo.duedate).toLocaleString()}
               </small>
             )}
           </div>

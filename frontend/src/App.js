@@ -63,6 +63,14 @@ function App() {
       return;
     }
 
+    // Prevent adding tasks in the past
+    const now = new Date();
+    const selected = new Date(selectedDate);
+    if (selected < now) {
+      showToast("You can't add a task in the past!", "warning");
+      return;
+    }
+
     const newTodo = {
       title: task,
       dueDate: selectedDate,
@@ -283,11 +291,11 @@ function App() {
                   style={{ flexBasis: "60%", minWidth: "150px" }}
                 />
                 <Form.Control
-                  type="date"
+                  type="datetime-local"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   className="flex-shrink-0"
-                  style={{ flexBasis: "15%", minWidth: "100px" }}
+                  style={{ flexBasis: "30%", minWidth: "280px" }}
                 />
 
                 <Button
