@@ -1,4 +1,5 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Container, Row, Col, Form, Button, ListGroup } from "react-bootstrap";
 import TodoItem from "./components/TodoItem";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -6,23 +7,18 @@ import ToastMessage from "./components/ToastMessage";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Sidebar from "./components/Sidebar";
-import Login from "./components/Login";
-import Register from "./components/Register";
+// import Login from "./components/Login";
+// import Register from "./components/Register";
 import { Offcanvas } from "react-bootstrap";
 
 function App() {
-  const [user, setUser] = useState(localStorage.getItem("user") || "");
-  const [showRegister, setShowRegister] = useState(false);
+  // const [user, setUser] = useState(localStorage.getItem("user") || "");
+  // const [showRegister, setShowRegister] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
 
   const [task, setTask] = useState("");
-  const [todos, setTodos] = useState(() => {
-    if (!user) return [];
-    const savedTodos = localStorage.getItem(`todos_${user}`);
-    return savedTodos ? JSON.parse(savedTodos) : [];
-  });
-
+  const [todos, setTodos] = useState([]);
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -33,57 +29,103 @@ function App() {
   const [selectedDate, setSelectedDate] = useState("");
   const [searchText, setSearchText] = useState("");
 
+  // Fetch todos from API on mount
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(`todos_${user}`, JSON.stringify(todos));
-    }
-  }, [todos, user]);
+    axios
+      .get("http://localhost:5159/api/Todo")
+      .then((res) => setTodos(res.data.map(mapApiTodo)))
+      .catch(() => showToast("Failed to fetch todos", "danger"));
+  }, []);
 
-  const handleAdd = () => {
+  // Helper to map API todo to frontend format
+  const mapApiTodo = (todo) => ({
+    id: todo.id,
+    text: todo.title,
+    duedate: todo.dueDate?.split("T")[0] || "",
+    completed: todo.isCompleted,
+  });
+
+  // Helper to map frontend todo to API format
+  const mapFrontendTodo = (todo) => ({
+    id: todo.id,
+    title: todo.text,
+    dueDate: todo.duedate,
+    isCompleted: todo.completed,
+  });
+
+  const handleAdd = async () => {
     if (task.trim() === "") {
       showToast("Task cannot be blank", "danger");
       return;
     }
-
     if (selectedDate === "") {
       showToast("Date cannot be empty", "danger");
       return;
     }
 
     const newTodo = {
-      id: Date.now(),
-      text: task,
-      completed: false,
-      duedate: selectedDate,
+      title: task,
+      dueDate: selectedDate,
+      isCompleted: false,
     };
 
-    setTodos([newTodo, ...todos]);
-    showToast("Task Added");
-    setTask("");
-    setSelectedDate("");
+    try {
+      const res = await axios.post("http://localhost:5159/api/Todo", newTodo);
+      setTodos([mapApiTodo(res.data), ...todos]);
+      showToast("Task Added");
+      setTask("");
+      setSelectedDate("");
+    } catch (err) {
+      showToast("Failed to add task", "danger");
+    }
   };
 
-  const handleDelete = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-    showToast("Task Deleted", "success");
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5159/api/Todo/${id}`);
+      setTodos(todos.filter((todo) => todo.id !== id));
+      showToast("Task Deleted", "success");
+    } catch (err) {
+      showToast("Failed to delete task", "danger");
+    }
   };
 
-  const toggleComplete = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
-    showToast("Task Completed", "success");
+  const toggleComplete = async (id) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    const updated = { ...todo, completed: !todo.completed };
+    try {
+      const res = await axios.put(
+        `http://localhost:5159/api/Todo/${id}`,
+        mapFrontendTodo(updated)
+      );
+      setTodos(
+        todos.map((t) => (t.id === id ? mapApiTodo(res.data) : t))
+      );
+      showToast("Task Completed", "success");
+    } catch (err) {
+      showToast("Failed to update task", "danger");
+    }
   };
 
-  const handleUpdate = (id, newText, newdate) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, text: newText, duedate: newdate } : todo
-      )
-    );
-    showToast("Task Updated");
+  const handleUpdate = async (id, newText, newdate) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    const updated = { ...todo, text: newText, duedate: newdate };
+    try {
+      const res = await axios.put(
+        `http://localhost:5159/api/Todo/${id}`,
+        mapFrontendTodo(updated)
+      );
+      setTodos(
+        todos.map((t) => (t.id === id ? mapApiTodo(res.data) : t))
+      );
+      showToast("Task Updated");
+    } catch (err) {
+      showToast("Failed to update task", "danger");
+    }
   };
 
   const showToast = (message, variant = "success") => {
@@ -92,7 +134,6 @@ function App() {
 
   const filteredTools = todos.filter((todo) => {
     const today = new Date().toISOString().split("T")[0];
-
     const isOverdue = todo.duedate < today && !todo.completed;
 
     if (filter === "completed") return todo.completed;
@@ -103,75 +144,74 @@ function App() {
     return todo.text.toLowerCase().includes(searchText.toLowerCase());
   });
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser("");
-    // setTodos([]);
-    showToast("Logged out", "info");
-  };
+  // Remove login/logout logic
+  // const handleLogout = () => {
+  //   localStorage.removeItem("user");
+  //   setUser("");
+  //   showToast("Logged out", "info");
+  // };
 
-  if (!user) {
-    return showRegister ? (
-      <>
-        <Register
-          onRegister={(username) => {
-            setUser(username);
-            localStorage.setItem("user", username);
-            setShowRegister(false);
-          }}
-        />
-        <div className="text-center mt-3">
-          <Button variant="link" onClick={() => setShowRegister(false)}>
-            Already have an account? Login
-          </Button>
-        </div>
-      </>
-    ) : (
-      <>
-        <Login
-          onLogin={(username) => {
-            setUser(username);
-            localStorage.setItem("user", username);
-          }}
-        />
-        <div className="text-center mt-3">
-          <Button variant="link" onClick={() => setShowRegister(true)}>
-            Don't have an account? Register
-          </Button>
-        </div>
-
-        <hr className="my-4" />
-        <div className="text-center">
-          <Button
-            variant="outline-primary"
-            className="d-flex align-items-center justify-content-center gap-2 mx-auto mb-2"
-            style={{ width: "250px" }}
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
-              alt="Facebook"
-              style={{ width: "25px", height: "25px" }}
-            />
-            Sign in with Facebook
-          </Button>
-          <span>or</span>
-
-          <Button
-            variant="outline-danger"
-            className="d-flex align-items-center justify-content-center gap-2 mx-auto"
-            style={{ width: "250px" }}
-          >
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-              style={{ width: "25px", height: "25px" }}
-            />
-            Sign in with Google
-          </Button>
-        </div>
-      </>
-    );
-  }
+  // Comment out login/register UI
+  // if (!user) {
+  //   return showRegister ? (
+  //     <>
+  //       <Register
+  //         onRegister={(username) => {
+  //           setUser(username);
+  //           localStorage.setItem("user", username);
+  //           setShowRegister(false);
+  //         }}
+  //       />
+  //       <div className="text-center mt-3">
+  //         <Button variant="link" onClick={() => setShowRegister(false)}>
+  //           Already have an account? Login
+  //         </Button>
+  //       </div>
+  //     </>
+  //   ) : (
+  //     <>
+  //       <Login
+  //         onLogin={(username) => {
+  //           setUser(username);
+  //           localStorage.setItem("user", username);
+  //         }}
+  //       />
+  //       <div className="text-center mt-3">
+  //         <Button variant="link" onClick={() => setShowRegister(true)}>
+  //           Don't have an account? Register
+  //         </Button>
+  //       </div>
+  //       <hr className="my-4" />
+  //       <div className="text-center">
+  //         <Button
+  //           variant="outline-primary"
+  //           className="d-flex align-items-center justify-content-center gap-2 mx-auto mb-2"
+  //           style={{ width: "250px" }}
+  //         >
+  //           <img
+  //             src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+  //             alt="Facebook"
+  //             style={{ width: "25px", height: "25px" }}
+  //           />
+  //           Sign in with Facebook
+  //         </Button>
+  //         <span>or</span>
+  //         <Button
+  //           variant="outline-danger"
+  //           className="d-flex align-items-center justify-content-center gap-2 mx-auto"
+  //           style={{ width: "250px" }}
+  //         >
+  //           <img
+  //             src="https://developers.google.com/identity/images/g-logo.png"
+  //             alt="Google"
+  //             style={{ width: "25px", height: "25px" }}
+  //           />
+  //           Sign in with Google
+  //         </Button>
+  //       </div>
+  //     </>
+  //   );
+  // }
 
   return (
     <>
@@ -187,7 +227,7 @@ function App() {
             <Sidebar
               onSelectCategory={setFilter}
               selectedCategory={filter}
-              onLogout={handleLogout}
+              // onLogout={handleLogout}
             />
           </Col>
 
@@ -206,7 +246,7 @@ function App() {
                   setShowSidebar(false);
                 }}
                 selectedCategory={filter}
-                onLogout={handleLogout}
+                // onLogout={handleLogout}
               />
             </Offcanvas.Body>
           </Offcanvas>
