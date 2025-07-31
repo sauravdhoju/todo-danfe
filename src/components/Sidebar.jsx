@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { ListGroup, Button } from "react-bootstrap";
 
 function Sidebar({ onSelectCategory, selectedCategory, onLogout }) {
-  const [open, setOpen] = useState(false);
 
   const mainCategories = [
     { id: "all", label: "All Tasks", icon: "bi-list-check" },
