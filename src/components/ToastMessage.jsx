@@ -1,5 +1,4 @@
-import React from "react";
-import { Toast, ToastBody, ToastContainer, ToastHeader } from "react-bootstrap";
+import { Toast, ToastContainer } from "react-bootstrap";
 
 function ToastMessage({ show, onClose, message, variant = "success" }) {
   return (
