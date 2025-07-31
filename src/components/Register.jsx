@@ -21,7 +21,22 @@ const Register = () => {
         .required("Password is required"),
     }),
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+
+      if (users[values.email]) {
+        alert("User already exists!");
+        return;
+      }
+
+      users[values.email] = {
+        fullName: values.fullName,
+        password: values.password,
+      };
+
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Registration successful!");
+
+      formik.resetForm();
     },
   });
 
@@ -31,7 +46,6 @@ const Register = () => {
         <Col md={6}>
           <h2 className="mb-4 text-center">Register</h2>
           <Form noValidate onSubmit={formik.handleSubmit}>
-
             <Form.Group controlId="fullName" className="mb-3">
               <Form.Label>Full Name</Form.Label>
               <Form.Control
