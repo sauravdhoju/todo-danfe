@@ -1,4 +1,3 @@
-import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
@@ -37,7 +36,7 @@ const Register = ({ onRegister }) => {
       localStorage.setItem("users", JSON.stringify(users));
       alert("Registration successful!");
 
-      if (onRegister) onRegister(values.email); // callback if needed
+      if (onRegister) onRegister(values.email); 
       resetForm();
     },
   });

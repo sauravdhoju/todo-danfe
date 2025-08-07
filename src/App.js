@@ -141,34 +141,6 @@ function App() {
         </div>
 
         <hr className="my-4" />
-        <div className="text-center">
-          <Button
-            variant="outline-primary"
-            className="d-flex align-items-center justify-content-center gap-2 mx-auto mb-2"
-            style={{ width: "250px" }}
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
-              alt="Facebook"
-              style={{ width: "25px", height: "25px" }}
-            />
-            Sign in with Facebook
-          </Button>
-          <span>or</span>
-
-          <Button
-            variant="outline-danger"
-            className="d-flex align-items-center justify-content-center gap-2 mx-auto"
-            style={{ width: "250px" }}
-          >
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-              style={{ width: "25px", height: "25px" }}
-            />
-            Sign in with Google
-          </Button>
-        </div>
       </>
     );
   }
