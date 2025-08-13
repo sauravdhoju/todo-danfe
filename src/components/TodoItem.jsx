@@ -4,10 +4,10 @@ import { ListGroup, Button, FormControl } from "react-bootstrap";
 function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
   const [isEdit, setIsEdit] = React.useState(false);
   const [editText, setEditText] = React.useState(todo.text);
-  const [editDate, setEditDate] = React.useState(todo.duedate || "");
+  const [editDate, setEditDate] = React.useState(todo.dueDate || "");
 
-  // Convert todo.duedate to Date object for comparison
-  const dueDate = todo.duedate ? new Date(todo.duedate) : null;
+  // Convert todo.dueDate to Date object for comparison
+  const dueDate = todo.dueDate ? new Date(todo.dueDate) : null;
   const today = new Date();
 
   // Helper function to check if two dates are the same calendar day
@@ -70,9 +70,9 @@ function TodoItem({ todo, onDelete, onToggle, onUpdate }) {
             onClick={() => onToggle(todo.id)}
           >
             <span>{todo.text}</span>
-            {todo.duedate && (
+            {todo.dueDate && (
               <small className="text-muted" style={{ fontSize: "0.8em" }}>
-                Due: {todo.duedate}
+                Due: {todo.dueDate}
               </small>
             )}
           </div>

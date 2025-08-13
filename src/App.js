@@ -54,7 +54,7 @@ function App() {
       id: Date.now(),
       text: task,
       completed: false,
-      duedate: selectedDate,
+      dueDate: selectedDate,
     };
 
     setTodos([newTodo, ...todos]);
@@ -80,7 +80,7 @@ function App() {
   const handleUpdate = (id, newText, newdate) => {
     setTodos((prevTodos) =>
       prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, text: newText, duedate: newdate } : todo
+        todo.id === id ? { ...todo, text: newText, dueDate: newdate } : todo
       )
     );
     showToast("Task Updated");
@@ -93,11 +93,11 @@ function App() {
   const filteredTools = todos.filter((todo) => {
     const today = new Date().toISOString().split("T")[0];
 
-    const isOverdue = todo.duedate < today && !todo.completed;
+    const isOverdue = todo.dueDate < today && !todo.completed;
 
     if (filter === "completed") return todo.completed;
-    if (filter === "incompleted") return !todo.completed;
-    if (filter === "today") return todo.duedate === today;
+    if (filter === "incomplete") return !todo.completed;
+    if (filter === "today") return todo.dueDate === today;
     if (filter === "overdue") return isOverdue;
 
     return todo.text.toLowerCase().includes(searchText.toLowerCase());
