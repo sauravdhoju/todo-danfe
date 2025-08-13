@@ -1,14 +1,40 @@
+import { useEffect } from "react";
 import { ListGroup, Button } from "react-bootstrap";
 
 function Sidebar({ onSelectCategory, selectedCategory, onLogout }) {
-
   const mainCategories = [
     { id: "all", label: "All Tasks", icon: "bi-list-check" },
     { id: "today", label: "Today", icon: "bi-calendar-day" },
-    { id: "incompleted", label: "Incompleted", icon: "bi-x-circle" },
+    { id: "incomplete", label: "Incomplete", icon: "bi-x-circle" },
     { id: "completed", label: "Completed", icon: "bi-check-circle" },
     { id: "overdue", label: "Overdue", icon: "bi-exclamation-circle" },
   ];
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Skip if user is typing in a form field
+      if (
+        e.target.tagName === "INPUT" ||
+        e.target.tagName === "TEXTAREA" ||
+        e.target.tagName === "SELECT" ||
+        e.target.isContentEditable
+      ) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+
+      if (key === "t") onSelectCategory("today");
+      if (key === "i") onSelectCategory("incomplete");
+      if (key === "c") onSelectCategory("completed");
+      if (key === "o") onSelectCategory("overdue");
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [onSelectCategory]);
 
   return (
     <div
